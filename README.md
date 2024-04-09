@@ -35,15 +35,19 @@ See scprng.h
 See Makefile arguments.
 
 Example:
+
 $ make BUILD_DIR=build CC=gcc AR=ar MBEDTLS_INCLUDE=./mbedtls/include MBEDTLS_LIBRARY=./mbedtls/build/x86_64/library
 
 x86 Example:
+
 $ make BUILD_DIR=build/x86 CC="gcc -m32" AR=ar MBEDTLS_INCLUDE=./mbedtls/include MBEDTLS_LIBRARY=./mbedtls/build/x86/library
 
 MINGW Example:
+
 $ make BUILD_DIR=build/win_amd64 CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-gcc-ar MBEDTLS_INCLUDE=./mbedtls/include MBEDTLS_LIBRARY=./mbedtls/build/win_amd64/library
 
 AARCH64 Example:
+
 $ make BUILD_DIR=build/arm64 CC=aarch64-linux-gnu-gcc AR=aarch64-linux-gnu-gcc-ar MBEDTLS_INCLUDE=./mbedtls/include MBEDTLS_LIBRARY=./mbedtls/build/arm64/library
 
 Output in build directory:
@@ -61,10 +65,14 @@ No automated tests were implemented. However, "test/test.sh" script generates bi
 Pre-requirements:
 
 * Install "scprng_gen" on the system:
+  
   $ sudo make BUILD_DIR=build install
+  
 * Install "dieharder" on the system, e.g. on Ubuntu:
+  
   $ sudo apt-get install dieharder
 * Install "unzip" on the system, e.g. on Ubuntu:
+  
   $ sudo apt-get install unzip
 * "ent" utility will be downloaded by test script
 
