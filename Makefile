@@ -35,21 +35,21 @@ all: util
 
 util: dir $(BUILD_DIR)/scprng_gen
 
-lib: dir $(BUILD_DIR)/scprng.a $(BUILD_DIR)/scprng.so
+lib: dir $(BUILD_DIR)/libscprng.a $(BUILD_DIR)/libscprng.so
 
 clean:
-	rm -f $(BUILD_DIR)/scprng.o $(BUILD_DIR)/scprng.a $(BUILD_DIR)/scprng.so $(BUILD_DIR)/scprng_gen
+	rm -f $(BUILD_DIR)/scprng.o $(BUILD_DIR)/libscprng.a $(BUILD_DIR)/libscprng.so $(BUILD_DIR)/scprng_gen
 
 dir:
 	@mkdir -p $(BUILD_DIR)
 
 $(BUILD_DIR)/scprng_gen: scprng_gen.c lib
-	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) -L$(BUILD_DIR) -l:scprng.a -L$(MBEDTLS_LIBRARY) -lmbedcrypto
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS) -L$(BUILD_DIR) -l:libscprng.a -L$(MBEDTLS_LIBRARY) -lmbedcrypto
 
-$(BUILD_DIR)/scprng.a: $(BUILD_DIR)/scprng.o
+$(BUILD_DIR)/libscprng.a: $(BUILD_DIR)/scprng.o
 	$(AR) rsc $@ $<
 
-$(BUILD_DIR)/scprng.so: $(BUILD_DIR)/scprng.o
+$(BUILD_DIR)/libscprng.so: $(BUILD_DIR)/scprng.o
 	$(CC) -shared -fPIC -o $@ $< $(LDFLAGS) -L$(MBEDTLS_LIBRARY) -lmbedcrypto
 
 $(BUILD_DIR)/scprng.o: scprng.c scprng.h
@@ -57,8 +57,8 @@ $(BUILD_DIR)/scprng.o: scprng.c scprng.h
 
 install: all
 	@cp ./scprng.h /usr/include
-	@cp $(BUILD_DIR)/scprng.so /usr/lib
+	@cp $(BUILD_DIR)/libscprng.so /usr/lib
 	@cp $(BUILD_DIR)/scprng_gen /usr/bin
 
 uninstall:
-	@rm -f /usr/include/scprng.h /usr/lib/scprng.so /usr/bin/scprng_gen
+	@rm -f /usr/include/scprng.h /usr/lib/libscprng.so /usr/bin/scprng_gen
