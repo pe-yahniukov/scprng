@@ -24,6 +24,14 @@
 
 #include <stdint.h>
 
+#if defined(_WIN32) && _WIN32
+    #define SCPRNG_EXPORT __declspec(dllexport)
+#elif defined(WIN32) && WIN32
+    #define SCPRNG_EXPORT __declspec(dllexport)
+#else
+    #define SCPRNG_EXPORT
+#endif
+
 /**
  * @brief      Generate a particular amount of pseudo-random numbers
  *
@@ -37,6 +45,7 @@
  *
  * @return     0 on success
  */
+SCPRNG_EXPORT
 int scprng_rand_numbers(uint32_t *numbers,
                         uint32_t numbers_count,
                         uint32_t upper_limit,

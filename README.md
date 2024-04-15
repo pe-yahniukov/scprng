@@ -28,35 +28,22 @@ See scprng.h
 ### Pre-requirements
 
 * make
+* cmake
 * [mbedtls](https://github.com/Mbed-TLS/mbedtls.git) project include directory and libmbedcrypto compiled library for your target OS and architecture. libmbedcrypto is used for AES encryption.
 
 ### Compiling
 
-See Makefile arguments.
-
-Example:
-
-$ make BUILD_DIR=build CC=gcc AR=ar MBEDTLS_INCLUDE=./mbedtls/include MBEDTLS_LIBRARY=./mbedtls/build/x86_64/library
-
-x86 Example:
-
-$ make BUILD_DIR=build/x86 CC="gcc -m32" AR=ar MBEDTLS_INCLUDE=./mbedtls/include MBEDTLS_LIBRARY=./mbedtls/build/x86/library
-
-MINGW Example:
-
-$ make BUILD_DIR=build/win_amd64 CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-gcc-ar MBEDTLS_INCLUDE=./mbedtls/include MBEDTLS_LIBRARY=./mbedtls/build/win_amd64/library
-
-AARCH64 Example:
-
-$ make BUILD_DIR=build/arm64 CC=aarch64-linux-gnu-gcc AR=aarch64-linux-gnu-gcc-ar MBEDTLS_INCLUDE=./mbedtls/include MBEDTLS_LIBRARY=./mbedtls/build/arm64/library
+```console
+  $ mkdir build && cd build
+  $ cmake -DCMAKE_BUILD_TYPE=Release -DMBEDCRYPTO_INCLUDE_DIR=./mbedtls/include -DMBEDCRYPTO_LIBRARY=./mbedtls/build/library/libmbedcrypto.a ..
+  $ make
+```
 
 Output in build directory:
 
-* scprng.a (~3 KB)   - static library
-* scprng.so (~30 KB) - dynamic library
-* scprng_gen         - executable, generator utility
-
-You may probably want to rename "scprng.so" to "scprng.dll" for Windows, and "scprng_gen" to "scprng_gen.exe".
+* libscprng_${version}.a  - static library
+* libscprng_${version}.so - dynamic library, an extension is ".dll" for Windows
+* scprng_gen              - executable, generator utility, an extension is ".exe" for Windows
 
 ## Testing
 
@@ -64,17 +51,11 @@ No automated tests were implemented. However, "test/test.sh" script generates bi
 
 Pre-requirements:
 
-* Install "scprng_gen" on the system:
-  
-  $ sudo make BUILD_DIR=build install
-  
-* Install "dieharder" on the system, e.g. on Ubuntu:
-  
-  $ sudo apt-get install dieharder
-* Install "unzip" on the system, e.g. on Ubuntu:
-  
-  $ sudo apt-get install unzip
-* "ent" utility will be downloaded by test script
+* Install "unzip " and "dieharder" on the system, e.g. on Ubuntu:
+```console
+  $ sudo apt-get install unzip dieharder
+```
+* "ent" utility will be downloaded by the test script
 
 Steps:
 
@@ -84,7 +65,7 @@ $ cd test
 
 $ ./test.sh 
 
-	ENT BITS MODE (Test file without specifying key and IV)
+    ENT BITS MODE (Test file without specifying key and IV)
 
 Entropy = 1.000000 bits per bit.
 
@@ -98,7 +79,7 @@ Arithmetic mean value of data bits is 0.4999 (0.5 = random).
 Monte Carlo value for Pi is 3.142017920 (error 0.01 percent).
 Serial correlation coefficient is -0.000116 (totally uncorrelated = 0.0).
 
-	ENT NORMAL MODE (Test file without specifying key and IV)
+    ENT NORMAL MODE (Test file without specifying key and IV)
 
 Entropy = 7.999995 bits per byte.
 
@@ -112,7 +93,7 @@ Arithmetic mean value of data bytes is 127.4822 (127.5 = random).
 Monte Carlo value for Pi is 3.142017920 (error 0.01 percent).
 Serial correlation coefficient is 0.000008 (totally uncorrelated = 0.0).
 
-	DIEHARDER (Test file without specifying key and IV)
+    DIEHARDER (Test file without specifying key and IV)
 
 #=============================================================================#
 #            dieharder version 3.31.1 Copyright 2003 Robert G. Brown          #
@@ -240,7 +221,7 @@ Preparing to run test 208.  ntuple = 0
 Preparing to run test 209.  ntuple = 0
         dab_monobit2|  12|  65000000|       1|0.02764910|  PASSED  
 
-	ENT BITS MODE (Test file with specifying simple key and IV)
+    ENT BITS MODE (Test file with specifying simple key and IV)
 
 Entropy = 1.000000 bits per bit.
 
@@ -254,7 +235,7 @@ Arithmetic mean value of data bits is 0.5000 (0.5 = random).
 Monte Carlo value for Pi is 3.142164480 (error 0.02 percent).
 Serial correlation coefficient is 0.000068 (totally uncorrelated = 0.0).
 
-	ENT NORMAL MODE (Test file with specifying simple key and IV)
+    ENT NORMAL MODE (Test file with specifying simple key and IV)
 
 Entropy = 7.999994 bits per byte.
 
@@ -268,7 +249,7 @@ Arithmetic mean value of data bytes is 127.4934 (127.5 = random).
 Monte Carlo value for Pi is 3.142164480 (error 0.02 percent).
 Serial correlation coefficient is -0.000099 (totally uncorrelated = 0.0).
 
-	DIEHARDER (Test file with specifying simple key and IV)
+    DIEHARDER (Test file with specifying simple key and IV)
 
 #=============================================================================#
 #            dieharder version 3.31.1 Copyright 2003 Robert G. Brown          #
@@ -396,7 +377,7 @@ Preparing to run test 208.  ntuple = 0
 Preparing to run test 209.  ntuple = 0
         dab_monobit2|  12|  65000000|       1|0.70547486|  PASSED  
 
-	ENT BITS MODE (Test file with specifying complex key and IV)
+    ENT BITS MODE (Test file with specifying complex key and IV)
 
 Entropy = 1.000000 bits per bit.
 
@@ -410,7 +391,7 @@ Arithmetic mean value of data bits is 0.5001 (0.5 = random).
 Monte Carlo value for Pi is 3.140681600 (error 0.03 percent).
 Serial correlation coefficient is -0.000069 (totally uncorrelated = 0.0).
 
-	ENT NORMAL MODE (Test file with specifying complex key and IV)
+    ENT NORMAL MODE (Test file with specifying complex key and IV)
 
 Entropy = 7.999995 bits per byte.
 
@@ -424,7 +405,7 @@ Arithmetic mean value of data bytes is 127.5265 (127.5 = random).
 Monte Carlo value for Pi is 3.140681600 (error 0.03 percent).
 Serial correlation coefficient is -0.000103 (totally uncorrelated = 0.0).
 
-	DIEHARDER (Test file with specifying complex key and IV)
+    DIEHARDER (Test file with specifying complex key and IV)
 
 #=============================================================================#
 #            dieharder version 3.31.1 Copyright 2003 Robert G. Brown          #
@@ -552,5 +533,5 @@ Preparing to run test 208.  ntuple = 0
 Preparing to run test 209.  ntuple = 0
         dab_monobit2|  12|  65000000|       1|0.17686632|  PASSED  
 
-	ALL TESTS ARE DONE. PLEASE CHECK OUTPUT.
+    ALL TESTS ARE DONE. PLEASE CHECK OUTPUT.
 ```
