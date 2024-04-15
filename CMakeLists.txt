@@ -23,11 +23,18 @@ cmake_minimum_required(VERSION 3.10)
 
 set(scprng_version 1.2)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 project(scprng
     VERSION ${scprng_version}
     LANGUAGES C)
+
+if(NOT DEFINED SCPRNG_AS_SUBPROJECT)
+    set(SCPRNG_AS_SUBPROJECT ON)
+    if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+        set(SCPRNG_AS_SUBPROJECT OFF)
+    endif()
+endif()
 
 include(CheckCCompilerFlag)
 
@@ -59,8 +66,8 @@ endif()
 
 find_package(MbedCrypto REQUIRED)
 
-set(HEADERS ${CMAKE_SOURCE_DIR}/scprng.h)
-set(SOURCES ${CMAKE_SOURCE_DIR}/scprng.c)
+set(HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/scprng.h)
+set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/scprng.c)
 
 set(SCPRNG_LIB scprng)
 set(SCPRNG_GEN scprng_gen)
@@ -86,6 +93,8 @@ add_custom_command(TARGET "${SCPRNG_LIB}-static" POST_BUILD
     COMMAND ln -s $<TARGET_FILE_NAME:${SCPRNG_LIB}-static> libscprng${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
 
-add_executable("${SCPRNG_GEN}" ${CMAKE_SOURCE_DIR}/scprng_gen.c)
-target_include_directories("${SCPRNG_GEN}" PRIVATE ${MBEDCRYPTO_INCLUDE_DIR})
-target_link_libraries("${SCPRNG_GEN}" "${SCPRNG_LIB}-static" "${MBEDCRYPTO_LIBRARY}")
+if (NOT ${SCPRNG_AS_SUBPROJECT})
+    add_executable("${SCPRNG_GEN}" ${CMAKE_CURRENT_SOURCE_DIR}/scprng_gen.c)
+    target_include_directories("${SCPRNG_GEN}" PRIVATE ${MBEDCRYPTO_INCLUDE_DIR})
+    target_link_libraries("${SCPRNG_GEN}" "${SCPRNG_LIB}-static" "${MBEDCRYPTO_LIBRARY}")
+endif()
