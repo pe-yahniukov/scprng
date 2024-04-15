@@ -25,15 +25,15 @@
 # Test Plan:
 # 0. Download "ent" utility: https://www.fourmilab.ch/random/
 # 1. Generate file with length of 37500000 bytes without specifying key and IV
-#    $ scprng_gen -c 9375000 -o test.file -u 4294967295
+#    $ ../build/scprng_gen -c 9375000 -o test.file -u 4294967295
 # 2. Print "ent" result in bits mode and normal mode
 # 3. Print "dieharder" result with ALL tests
 # 4. Generate file with length of 37500000 bytes with specifying simple key and IV
-#    $ scprng_gen -c 9375000 -o test.file -u 4294967295 -k 123 -v 123
+#    $ ../build/scprng_gen -c 9375000 -o test.file -u 4294967295 -k 123 -v 123
 # 5. Print "ent" result in bits mode and normal mode
 # 6. Print "dieharder" result with ALL tests
 # 4. Generate file with length of 37500000 bytes with specifying complex key and IV
-#    $ scprng_gen -c 9375000 -o test.file -u 4294967295 -k $(scprng_gen -c 8 -u 4294967295) -v $(scprng_gen -c 4 -u 4294967295)
+#    $ ../build/scprng_gen -c 9375000 -o test.file -u 4294967295 -k $(../build/scprng_gen -c 8 -u 4294967295) -v $(../build/scprng_gen -c 4 -u 4294967295)
 # 5. Print "ent" result in bits mode and normal mode
 # 6. Print "dieharder" result with ALL tests
 #
@@ -42,10 +42,9 @@ if [ -z $(ls $(pwd) | grep test.sh) ]; then
     echo "ERROR: Please execute this script in the directory with this script"
     exit 1
 fi
-if [[ ! -z $(type scprng_gen 2>&1 | grep "not found") ]]; then
-    echo "ERROR: Please install 'scprng_gen' before launching this script"
-    echo "Execute this command in the root folder of the repository:"
-    echo "$ sudo make install"
+if [[ ! -z $(type ../build/scprng_gen 2>&1 | grep "not found") ]]; then
+    echo "ERROR: Please build '../build/scprng_gen' before launching this script"
+    echo "See 'Building' section in README.md"
     exit 1
 fi
 if [[ ! -z $(type dieharder 2>&1 | grep "not found") ]]; then
@@ -89,7 +88,7 @@ fi
 #
 
 rm -f test.file
-scprng_gen -c 9375000 -o test.file -u 4294967295
+../build/scprng_gen -c 9375000 -o test.file -u 4294967295
 if [ ! -f test.file ]; then
     echo "ERROR: Failed to generate test file"
     exit 1
@@ -122,7 +121,7 @@ dieharder -a -f test.file
 #
 
 rm -f test.file
-scprng_gen -c 9375000 -o test.file -u 4294967295 -k 123 -v 123
+../build/scprng_gen -c 9375000 -o test.file -u 4294967295 -k 123 -v 123
 if [ ! -f test.file ]; then
     echo "ERROR: Failed to generate test file"
     exit 1
@@ -155,7 +154,7 @@ dieharder -a -f test.file
 #
 
 rm -f test.file
-scprng_gen -c 9375000 -o test.file -u 4294967295 -k $(scprng_gen -c 8 -u 4294967295) -v $(scprng_gen -c 4 -u 4294967295)
+../build/scprng_gen -c 9375000 -o test.file -u 4294967295 -k $(../build/scprng_gen -c 8 -u 4294967295) -v $(../build/scprng_gen -c 4 -u 4294967295)
 if [ ! -f test.file ]; then
     echo "ERROR: Failed to generate test file"
     exit 1
