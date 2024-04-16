@@ -86,6 +86,12 @@ set_target_properties("${SCPRNG_LIB}" PROPERTIES PREFIX "lib")
 set_target_properties("${SCPRNG_LIB}-static" PROPERTIES OUTPUT_NAME "${SCPRNG_LIB}-${scprng_version}")
 set_target_properties("${SCPRNG_LIB}-static" PROPERTIES PREFIX "lib")
 
+add_custom_command(TARGET "${SCPRNG_LIB}" PRE_BUILD
+    COMMAND rm -f libscprng${CMAKE_SHARED_LIBRARY_SUFFIX}
+)
+add_custom_command(TARGET "${SCPRNG_LIB}-static" PRE_BUILD
+    COMMAND rm -f libscprng${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
 add_custom_command(TARGET "${SCPRNG_LIB}" POST_BUILD
     COMMAND ln -s $<TARGET_FILE_NAME:${SCPRNG_LIB}> libscprng${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
