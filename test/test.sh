@@ -24,16 +24,12 @@
 #
 # Test Plan:
 # 0. Download "ent" utility: https://www.fourmilab.ch/random/
-# 1. Generate file with length of 37500000 bytes without specifying key and IV
-#    $ ../build/scprng_gen -c 9375000 -o test.file -u 4294967295
+# 1. Generate file with length of 37500000 bytes without specifying key
+#    $ ../build/scprng_gen -c 9375000 -o test.file
 # 2. Print "ent" result in bits mode and normal mode
 # 3. Print "dieharder" result with ALL tests
-# 4. Generate file with length of 37500000 bytes with specifying simple key and IV
-#    $ ../build/scprng_gen -c 9375000 -o test.file -u 4294967295 -k 123 -v 123
-# 5. Print "ent" result in bits mode and normal mode
-# 6. Print "dieharder" result with ALL tests
-# 4. Generate file with length of 37500000 bytes with specifying complex key and IV
-#    $ ../build/scprng_gen -c 9375000 -o test.file -u 4294967295 -k $(../build/scprng_gen -c 8 -u 4294967295) -v $(../build/scprng_gen -c 4 -u 4294967295)
+# 4. Generate file with length of 37500000 bytes with specifying key
+#    $ ../build/scprng_gen -c 9375000 -o test.file -k $(../build/scprng_gen -c 16)
 # 5. Print "ent" result in bits mode and normal mode
 # 6. Print "dieharder" result with ALL tests
 #
@@ -84,11 +80,11 @@ if [ ! -d ./random ]; then
 fi
 
 #
-# Step 1 - Generate file with length of 37500000 bytes without specifying key and IV
+# Step 1 - Generate file with length of 37500000 bytes without specifying key
 #
 
 rm -f test.file
-../build/scprng_gen -c 9375000 -o test.file -u 4294967295
+../build/scprng_gen -c 9375000 -o test.file
 if [ ! -f test.file ]; then
     echo "ERROR: Failed to generate test file"
     exit 1
@@ -99,11 +95,11 @@ fi
 #
 
 echo
-echo -e "\tENT BITS MODE (Test file without specifying key and IV)"
+echo -e "\tENT BITS MODE (Test file without specifying key)"
 echo
 ./random/ent -b test.file
 echo
-echo -e "\tENT NORMAL MODE (Test file without specifying key and IV)"
+echo -e "\tENT NORMAL MODE (Test file without specifying key)"
 echo
 ./random/ent test.file
 
@@ -112,16 +108,16 @@ echo
 #
 
 echo
-echo -e "\tDIEHARDER (Test file without specifying key and IV)"
+echo -e "\tDIEHARDER (Test file without specifying key)"
 echo
 dieharder -a -f test.file
 
 #
-# Step 4 - Generate file with length of 37500000 bytes with specifying simple key and IV
+# Step 4 - Generate file with length of 37500000 bytes with specifying key
 #
 
 rm -f test.file
-../build/scprng_gen -c 9375000 -o test.file -u 4294967295 -k 123 -v 123
+../build/scprng_gen -c 9375000 -o test.file -k $(../build/scprng_gen -c 16)
 if [ ! -f test.file ]; then
     echo "ERROR: Failed to generate test file"
     exit 1
@@ -132,11 +128,11 @@ fi
 #
 
 echo
-echo -e "\tENT BITS MODE (Test file with specifying simple key and IV)"
+echo -e "\tENT BITS MODE (Test file with specifying key)"
 echo
 ./random/ent -b test.file
 echo
-echo -e "\tENT NORMAL MODE (Test file with specifying simple key and IV)"
+echo -e "\tENT NORMAL MODE (Test file with specifying key)"
 echo
 ./random/ent test.file
 
@@ -145,40 +141,7 @@ echo
 #
 
 echo
-echo -e "\tDIEHARDER (Test file with specifying simple key and IV)"
-echo
-dieharder -a -f test.file
-
-#
-# Step 7 - Generate file with length of 37500000 bytes with specifying complex key and IV
-#
-
-rm -f test.file
-../build/scprng_gen -c 9375000 -o test.file -u 4294967295 -k $(../build/scprng_gen -c 8 -u 4294967295) -v $(../build/scprng_gen -c 4 -u 4294967295)
-if [ ! -f test.file ]; then
-    echo "ERROR: Failed to generate test file"
-    exit 1
-fi
-
-#
-# Step 8 - Print "ent" result in bits mode and normal mode
-#
-
-echo
-echo -e "\tENT BITS MODE (Test file with specifying complex key and IV)"
-echo
-./random/ent -b test.file
-echo
-echo -e "\tENT NORMAL MODE (Test file with specifying complex key and IV)"
-echo
-./random/ent test.file
-
-#
-# Step 9 - Print "dieharder" result with ALL tests
-#
-
-echo
-echo -e "\tDIEHARDER (Test file with specifying complex key and IV)"
+echo -e "\tDIEHARDER (Test file with specifying key)"
 echo
 dieharder -a -f test.file
 
