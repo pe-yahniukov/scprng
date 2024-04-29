@@ -20,12 +20,14 @@
  *
 */
 
+#include <time.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <limits.h>
+#include <stdbool.h>
 
 #include "scprng.h"
 
@@ -35,9 +37,11 @@ static int args_parse(int argc, char **argv);
 static int       numbers_count = 0;
 static FILE     *output_file   = NULL;
 static uint8_t   key[64]       = {0};
+static bool      time_measure  = false;
 
 int main(int argc, char **argv)
 {
+    clock_t t = 0;
     uint32_t *numbers = NULL;
 
     int ret = args_parse(argc, argv);
@@ -52,6 +56,9 @@ int main(int argc, char **argv)
         goto scprng_gen_exit;
     }
 
+    if (time_measure)
+        t = clock();
+
     ret = scprng_rand_numbers(numbers,
                     (uint32_t)numbers_count,
                               key);
@@ -60,6 +67,9 @@ int main(int argc, char **argv)
         fprintf(stderr, "ERROR: Failed to perform operation\n");
         goto scprng_gen_exit;
     }
+
+    if (time_measure)
+        t = clock() - t;
 
     if (output_file)
     {
@@ -81,6 +91,14 @@ int main(int argc, char **argv)
         fprintf(stdout, "\n");
     }
 
+    if (time_measure)
+    {
+        double time_taken = (double)t / CLOCKS_PER_SEC;
+        fprintf(stdout, "\nThe operation took %.4f seconds.\n", time_taken);
+        fprintf(stdout, "The generation number speed: %.4f bytes per seconds.\n",
+               (numbers_count * sizeof(uint32_t)) / time_taken);
+    }
+
 scprng_gen_exit:
 
     if (output_file)
@@ -93,7 +111,7 @@ scprng_gen_exit:
 
 static void help(void)
 {
-    fprintf(stdout, "scprng_gen -c <numbers_count> [-o <output_file>] [-k <key>]\n\n");
+    fprintf(stdout, "scprng_gen -c <numbers_count> [-o <output_file>] [-k <key>] [-t]\n\n");
     fprintf(stdout, "  Arguments:\n");
     fprintf(stdout, "   -c <numbers_count>    - Count of numbers that the program should generate. Range = [1; 2147483647].\n\n");
     fprintf(stdout, "  Optional arguments:\n");
@@ -103,6 +121,7 @@ static void help(void)
     fprintf(stdout, "   -k <key>              - 64-byte secret initial key. If not specified, zeros will be used.\n");
     fprintf(stdout, "                           If the specified string length is less than 64, zeros will be added.\n");
     fprintf(stdout, "                           If the specified string length is more than 64, the string will be truncated.\n");
+    fprintf(stdout, "   -t                    - Print how much time the operation was taken.\n");
     fprintf(stdout, "  MIT License. Copyright (C) 2024 PE Stanislav Yahniukov <pe@yahniukov.com>.\n\n");
 }
 
@@ -160,6 +179,11 @@ static int args_parse(int argc, char **argv)
         if (!strcmp(argv[i], "-k"))
         {
             memcpy(key, argv[i + 1], strlen(argv[i + 1]) > 64 ? 64 : strlen(argv[i + 1]));
+        }
+        if (!strcmp(argv[i], "-t"))
+        {
+            time_measure = true;
+            --i;
         }
     }
 
