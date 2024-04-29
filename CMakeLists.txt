@@ -21,7 +21,7 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-set(scprng_version 1.2.1)
+set(scprng_version 2.0.2)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
