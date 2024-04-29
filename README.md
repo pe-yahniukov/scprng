@@ -3,8 +3,23 @@
 ## Purposes
 
 1. The generator should be deterministic - given the same inputs, always produces the same outputs, even on different platforms with different operating systems and architectures.
-2. The generator should pass most of the known statistical tests and should have very high entropy.
-3. The generator should be small and fast, without external entropy sources that can slow down (or even temporarily block) number generation.
+2. The only initial setting - a 64-byte key. Thus, two different machines will produce the same numbers only if they both know the initial key.
+3. The generator should pass most of the known statistical tests and should have very high entropy.
+4. The generator should be small and fast, without external entropy sources that can slow down (or even temporarily block) number generation.
+
+## Performance
+
+**CPU:** 12th Gen Intel(R) Core(TM) i9-12900H, 2.5 GHz
+
+**Performance:** 248 MB/s
+
+**Command to check**: Use below command with "-t" flag to generate 1 GB of random data using one CPU core and "scprng_gen" will print the performance.
+```console
+$ taskset --cpu-list 0 ./scprng_gen -c 268435456 -o test.file -t
+
+The operation took 4.1209 seconds.
+The generation number speed: 260561420.1634 bytes per seconds.
+```
 
 ## Algorithm
 
