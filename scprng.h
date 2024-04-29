@@ -37,17 +37,11 @@
  *
  * @param[out] numbers         Output numbers buffer. Should be allocated.
  * @param[in]  numbers_count   Count of numbers that the function should generate.
- * @param[in]  upper_limit     The upper limit for each number.
- * @param[in]  encryption_key  (Optional) 32-byte secret encryption key.
- *                             If not specified, the algorithm will use 32 zeros.
- * @param[in]  encryption_iv   (Optional) 16-byte secret encryption initialization vector.
- *                             If not specified, the algorithm will use 16 zeros.
+ * @param[in]  key             64-byte secret key.
  *
  * @return     0 on success
  */
 SCPRNG_EXPORT
 int scprng_rand_numbers(uint32_t *numbers,
                         uint32_t numbers_count,
-                        uint32_t upper_limit,
-                        uint8_t encryption_key[32],
-                        uint8_t encryption_iv[16]);
+                        uint8_t key[64]);

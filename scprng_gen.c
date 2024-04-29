@@ -20,26 +20,28 @@
  *
 */
 
+#include <time.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <limits.h>
+#include <stdbool.h>
 
 #include "scprng.h"
 
 static void help(void);
 static int args_parse(int argc, char **argv);
 
-static int       numbers_count      = 0;
-static FILE     *output_file        = NULL;
-static uint32_t  upper_limit        = RAND_MAX;
-static uint8_t   encryption_iv[16]  = {0};
-static uint8_t   encryption_key[32] = {0};
+static int       numbers_count = 0;
+static FILE     *output_file   = NULL;
+static uint8_t   key[64]       = {0};
+static bool      time_measure  = false;
 
 int main(int argc, char **argv)
 {
+    clock_t t = 0;
     uint32_t *numbers = NULL;
 
     int ret = args_parse(argc, argv);
@@ -54,16 +56,20 @@ int main(int argc, char **argv)
         goto scprng_gen_exit;
     }
 
+    if (time_measure)
+        t = clock();
+
     ret = scprng_rand_numbers(numbers,
                     (uint32_t)numbers_count,
-                              upper_limit,
-                              encryption_key,
-                              encryption_iv);
+                              key);
     if (ret)
     {
         fprintf(stderr, "ERROR: Failed to perform operation\n");
         goto scprng_gen_exit;
     }
+
+    if (time_measure)
+        t = clock() - t;
 
     if (output_file)
     {
@@ -85,6 +91,14 @@ int main(int argc, char **argv)
         fprintf(stdout, "\n");
     }
 
+    if (time_measure)
+    {
+        double time_taken = (double)t / CLOCKS_PER_SEC;
+        fprintf(stdout, "\nThe operation took %.4f seconds.\n", time_taken);
+        fprintf(stdout, "The generation number speed: %.4f bytes per seconds.\n",
+               (numbers_count * sizeof(uint32_t)) / time_taken);
+    }
+
 scprng_gen_exit:
 
     if (output_file)
@@ -97,23 +111,17 @@ scprng_gen_exit:
 
 static void help(void)
 {
-    fprintf(stdout, "scprng_gen -c <numbers_count> [-o <output_file>] [-u <upper_limit>]\n"); 
-    fprintf(stdout, "                              [-k <encryption_key>] [-v <encryption_iv>]\n\n");
+    fprintf(stdout, "scprng_gen -c <numbers_count> [-o <output_file>] [-k <key>] [-t]\n\n");
     fprintf(stdout, "  Arguments:\n");
     fprintf(stdout, "   -c <numbers_count>    - Count of numbers that the program should generate. Range = [1; 2147483647].\n\n");
     fprintf(stdout, "  Optional arguments:\n");
     fprintf(stdout, "   -o <output_file>      - Path to the file in which generated numbers will be written.\n");
     fprintf(stdout, "                           If not specified, the numbers will be printed to STDOUT\n");
     fprintf(stdout, "                           in hexadecimal format.\n");
-    fprintf(stdout, "   -u <upper_limit>      - The upper limit for each generated number. Range = [1; 4294967295].\n");
-    fprintf(stdout, "                           If not specified, RAND_MAX will be used.\n");
-    fprintf(stdout, "   -k <encryption_key>   - 32-byte secret encryption key. If not specified, zeros will be used.\n");
-    fprintf(stdout, "                           If the specified string length is less than 32, zeros will be added.\n");
-    fprintf(stdout, "                           If the specified string length is more than 32, the string will be truncated.\n");
-    fprintf(stdout, "   -v <encryption_iv>    - 16-byte secret encryption initialization vector. If not specified, zeros will be used.\n");
-    fprintf(stdout, "                           If the specified string length is less than 16, zeros will be added.\n");
-    fprintf(stdout, "                           If the specified string length is more than 16, the string will be truncated.\n\n");
-    fprintf(stdout, "  See 'scprng_algo.pdf' for the algorithm description of this cryptographic pseudo-random generator.\n\n");
+    fprintf(stdout, "   -k <key>              - 64-byte secret initial key. If not specified, zeros will be used.\n");
+    fprintf(stdout, "                           If the specified string length is less than 64, zeros will be added.\n");
+    fprintf(stdout, "                           If the specified string length is more than 64, the string will be truncated.\n");
+    fprintf(stdout, "   -t                    - Print how much time the operation was taken.\n");
     fprintf(stdout, "  MIT License. Copyright (C) 2024 PE Stanislav Yahniukov <pe@yahniukov.com>.\n\n");
 }
 
@@ -123,18 +131,6 @@ static long int str_to_int(char *str)
     if (errno)
         return -1;
     if (result < INT_MIN || result > INT_MAX)
-        return -1;
-    if (!result && strcmp(str, "0"))
-        return -1;
-    return result;
-}
-
-static long int str_to_uint(char *str)
-{
-    long int result = strtol((const char *)str, NULL, 10);
-    if (errno)
-        return -1;
-    if (result < 0 || result > UINT_MAX)
         return -1;
     if (!result && strcmp(str, "0"))
         return -1;
@@ -152,8 +148,7 @@ static int args_parse(int argc, char **argv)
         return -1;
     }
 
-    memset(encryption_iv,  0, 16);
-    memset(encryption_key, 0, 32);
+    memset(key, 0, 64);
 
     for (int i = 1; i < argc; i += 2)
     {
@@ -181,28 +176,14 @@ static int args_parse(int argc, char **argv)
                 return -1;
             }
         }
-        if (!strcmp(argv[i], "-u"))
-        {
-            ret = str_to_uint(argv[i + 1]);
-            if (ret < 0)
-            {
-                fprintf(stderr, "ERROR: Failed to convert string to unsigned number in '-u' option\n");
-                return -1;
-            }
-            if (ret == 0)
-            {
-                fprintf(stderr, "ERROR: Value for '-u' option should be more than 0 (zero)\n");
-                return -1;
-            }
-            upper_limit = (uint32_t)ret;
-        }
         if (!strcmp(argv[i], "-k"))
         {
-            memcpy(encryption_key, argv[i + 1], strlen(argv[i + 1]) > 32 ? 32 : strlen(argv[i + 1]));
+            memcpy(key, argv[i + 1], strlen(argv[i + 1]) > 64 ? 64 : strlen(argv[i + 1]));
         }
-        if (!strcmp(argv[i], "-v"))
+        if (!strcmp(argv[i], "-t"))
         {
-            memcpy(encryption_iv, argv[i + 1], strlen(argv[i + 1]) > 16 ? 16 : strlen(argv[i + 1]));
+            time_measure = true;
+            --i;
         }
     }
 
